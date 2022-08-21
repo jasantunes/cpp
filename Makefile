@@ -1,3 +1,4 @@
+# https://stackoverflow.com/questions/9178285/how-can-makefile-use-separate-directories-for-source-code-and-binaries
 CC          = g++
 LD          = g++
 CFLAG       = -Wall
