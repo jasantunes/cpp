@@ -1,7 +1,44 @@
 # https://stackoverflow.com/questions/9178285/how-can-makefile-use-separate-directories-for-source-code-and-binaries
 CC          = g++
 LD          = g++
-CFLAG       = -Wall
+CFLAG       = -std=c++17 \
+-pedantic  \
+-pedantic-errors \
+-Waggregate-return \
+-Wall \
+-Wcast-qual \
+-Wconversion \
+-Wdisabled-optimization \
+-Weffc++ \
+-Werror \
+-Wextra \
+-Wfloat-equal \
+-Wformat-nonliteral
+-Wformat-security  \
+-Wformat-y2k \
+-Wformat=2 \
+-Wimplicit \
+-Wimport  \
+-Winit-self  \
+-Winline \
+-Winvalid-pch   \
+-Wlong-long \
+-Wmissing-field-initializers \
+-Wmissing-format-attribute   \
+-Wmissing-include-dirs \
+-Wmissing-noreturn \
+-Wpointer-arith \
+-Wredundant-decls \
+-Wshadow \
+-Wstack-protector \
+-Wstrict-aliasing=2 \
+-Wswitch-default \ \
+-Wswitch-enum \
+-Wunreachable-code \
+-Wunused \
+-Wunused-parameter \
+-Wvariadic-macros \
+-Wwrite-strings
 PROG_NAME   = hello
 
 SRC_DIR     = ./src
