@@ -25,5 +25,11 @@ all: $(BINARIES)
 $(BIN_DIR)/%: %.o
 	$(LD) $(LIBS) -o $@ $^
 
+
+deps: folly
+
+folly:
+	brew list folly &> /dev/null || brew install folly
+
 clean:
 	rm -f $(BINARIES)
