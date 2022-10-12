@@ -56,14 +56,12 @@ int main() {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
   // No copy/move ctors
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# temporary materialization (1): no actual copy or move"
               << std::endl;
     A x = A("x");
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout
         << "# temporary materialization (2): no actual copy or move (NRVO)"
@@ -71,7 +69,6 @@ int main() {
     A x = return_named_variable();
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout
         << "# temporary materialization (3): no actual copy or move (NRVO)"
@@ -79,28 +76,24 @@ int main() {
     A x = return_unnamed_variable();
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using ref" << std::endl;
     A x = A("x");
     A& y = x; // it's a reference
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using copy ctor" << std::endl;
     A x = A("x");
     A y = x;
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using move ctor" << std::endl;
     A x = A("x");
     A y = std::move(x);
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using copy assignment" << std::endl;
     A x = A("x");
@@ -108,34 +101,29 @@ int main() {
     x = y;
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using move assignment" << std::endl;
     A x = A("x");
     x = A("y");
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using return move (rvalue)" << std::endl;
     return_move_rvalue(A("x"));
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using return move (rvalue 2)" << std::endl;
     A x = A("x");
     return_move_rvalue(std::move(x));
   }
 
-  std::cout << "##############################" << std::endl;
   {
     std::cout << "# using return move (lvalue)" << std::endl;
     A x = A("x");
     return_move_lvalue(x);
   }
 
-  std::cout << "##############################" << std::endl;
 #pragma GCC diagnostic pop
 
   return 0;

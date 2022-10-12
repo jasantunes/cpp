@@ -3,9 +3,13 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 
 // Don't use `#define` or `static const`, instead use `static constexpr`.
-static constexpr int THRESHOLD{5};
+static constexpr int BASE{2};
 
 class Interface {
  public:
@@ -75,6 +79,31 @@ int main() {
   };
   std::for_each(myArray.begin(), myArray.end(), print_if_less_than_5);
 
-  std::cout << "Hello World! (" << THRESHOLD << ")" << std::endl;
+  // Use auto to make code more readable and prevent unwanted casts.
+  std::vector<int> vec{1, 2, 3, 4, 5};
+  const auto s = vec.size();
+  std::cout << "size of vector: " << s << std::endl;
+
+  // Prefer range loops, instead of iterators or indices.
+  // Also prefer `for` to `while` statements.
+  for (auto& val : vec) {
+    val *= BASE; // double it
+  }
+
+  // Or use functional programming <algorithms> over loops.
+  auto double_it = [=](int i) { return BASE * i; };
+  std::transform(vec.begin(), vec.end(), vec.begin(), double_it);
+
+
+  // Some standard well-known containers.
+  std::unordered_map<int, std::string> hash_table;
+  hash_table[10] = "ten";
+  std::cout << hash_table.at(10) << std::endl;
+
+  std::unordered_set<int> set;
+  set.insert(10);
+  if (set.find(10) != set.end()) {
+    std::cout << "Set contains key" << std::endl;
+  }
   return 0;
 }
