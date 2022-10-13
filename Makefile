@@ -5,18 +5,30 @@ BINARIES  = $(patsubst $(SRC_DIR)/%,$(BIN_DIR)/%,$(SOURCES:.cpp=))
 BREW_PREFIX = $(shell brew --prefix)
 DEPS      = folly boost glog gflags fmt double-conversion libevent
 INCLUDES  = $(DEPS:%=-I$(BREW_PREFIX)/opt/%/include)
-LIBS      = -L$(BREW_PREFIX)/lib -lfolly -lglog -lgflags -lfmt -ldouble-conversion -levent
+LIBS      = -stdlib=libc++ -L$(BREW_PREFIX)/lib \
+            -lc++abi \
+            -lpthread \
+            -lm \
+            -ldl \
+            -lfolly \
+            -lglog \
+            -lgflags \
+            -lfmt \
+            -ldouble-conversion \
+            -levent
 CXX       = clang++
 LD        = clang++
 CXXFLAGS  = -std=c++17 \
             -stdlib=libc++ \
+            -fcoroutines-ts \
             -pedantic \
             -pedantic-errors \
             -Wall \
             -Wdisabled-optimization \
             -Weffc++ \
             -Werror \
-            -Wextra
+            -Wextra \
+            -Wno-reserved-user-defined-literal
 
 .PHONY: all clean
 
