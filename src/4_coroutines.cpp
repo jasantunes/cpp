@@ -1,47 +1,50 @@
-#include <folly/executors/ThreadedExecutor.h>
-#include <folly/experimental/coro/Task.h>
-#include <folly/futures/Future.h>
+#include <concepts>
+#include <exception>
+#include <experimental/coroutine>
 #include <iostream>
-#include <chrono>
 
-void foo(int x) {
-  // do something with x
-  std::cout << "foo(" << x << ")" << std::endl;
-}
+struct ReturnObject {
+  struct promise_type {
+    ReturnObject get_return_object() {
+      return {};
+    }
+    std::experimental::suspend_never initial_suspend() {
+      return {};
+    }
+    std::experimental::suspend_never final_suspend() noexcept {
+      return {};
+    }
+    void unhandled_exception() {}
+    void return_void() noexcept {}
+  };
+};
 
-// Coroutine function that returns an RAII container for the coro handle.
-// The coroutine frame and handle are created when the function is called.
-folly::coro::Task<int> task42() {
-  co_return 42;
-}
+struct Awaiter {
+  std::experimental::coroutine_handle<>* hp_;
+  constexpr bool await_ready() const noexcept {
+    return false;
+  }
+  void await_suspend(std::experimental::coroutine_handle<> h) {
+    *hp_ = h;
+  }
+  constexpr void await_resume() const noexcept {}
+};
 
-folly::coro::Task<int> taskSlow43() {
-  auto duration = std::chrono::seconds{1};
-  std::cout << duration.count() << std::endl;
-  co_await folly::futures::sleep(duration);
-  // co_return co_await keywords:
-  //      turns the function into a coroutine and triggers compiler
-  //      transformations on the fn body.
-  co_return co_await task42() + 1;
+ReturnObject counter(std::experimental::coroutine_handle<>* continuation_out) {
+  Awaiter a{continuation_out};
+  for (unsigned i = 0;; ++i) {
+    co_await a;
+    std::cout << "counter: " << i << std::endl;
+  }
 }
 
 int main() {
-  // ...
-  folly::ThreadedExecutor executor;
-  std::cout << "making Promise" << std::endl;
-  folly::Promise<int> p;
-  folly::Future<int> f = p.getSemiFuture().via(&executor);
-  auto f2 = std::move(f).thenValue(foo);
-  std::cout << "Future chain made" << std::endl;
-
-  // ... now perhaps in another event callback
-
-  std::cout << "fulfilling Promise" << std::endl;
-  p.setValue(42);
-  std::move(f2).get();
-  std::cout << "Promise fulfilled" << std::endl;
-
-  // Coroutines
-
+  std::experimental::coroutine_handle<> h;
+  counter(&h);
+  for (int i = 0; i < 3; ++i) {
+    std::cout << "In main1 function\n";
+    h();
+  }
+  h.destroy();
   return 0;
 }

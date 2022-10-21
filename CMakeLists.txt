@@ -61,8 +61,8 @@ endforeach()
 
 # add_executable(1_style      src/1_style.cpp)
 
-# add_executable(4_coroutines src/4_coroutines.cpp)
-# target_compile_options(4_coroutines PRIVATE "-fcoroutines-ts")
+add_executable(4_coroutines src/4_coroutines.cpp)
+target_compile_options(4_coroutines PRIVATE "-fcoroutines-ts")
 
 
 add_executable(4_coroutines_folly src/4_coroutines_folly.cpp)
