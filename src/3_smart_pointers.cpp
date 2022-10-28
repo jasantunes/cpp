@@ -4,8 +4,10 @@ int main() {
   // auto_ptr is deprecated.
   // std::auto_ptr<int> deprecated;
 
+  // Prefer std::unique_ptr over std::shared_ptr if possible.
   // Use unique_ptr when you want a single pointer to an object that will be
   // reclaimed when that single pointer is destroyed.
+  // https://google.github.io/styleguide/cppguide.html#Ownership_and_Smart_Pointers
   std::unique_ptr<int> p1 = std::make_unique<int>(42);
   // auto p2 = p1;          // error: can't copy unique_ptr
   auto p2 = std::move(p1); // okay, but transfers ownership

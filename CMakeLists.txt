@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE INTERNAL "" FORCE)
 
 # run cmake with something like:
-# cmake -DFOLLY_INSTALLED_AT:PATH=/Users/jantunes/.scratch/UsersZjantunesZdevZfolly/fbcode_builder_getdeps/installed ..
+# mkdir -r build; cd build; cmake -DFOLLY_INSTALLED_AT:PATH=${PWD}/../deps/installed ..
 SET(FOLLY_INSTALLED_AT "folly_installed_at" CACHE PATH "Path to folly installation.")
 
-project(cpp VERSION 0.0.1 LANGUAGES CXX)
+project(cpp VERSION 0.0.2 LANGUAGES CXX)
 set(CMAKE_CXX_COMPILER "clang++")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,11 +44,12 @@ find_package(Threads REQUIRED)
 # find_package(fmt CONFIG REQUIRED)
 # find_package(gflags REQUIRED)
 find_package(double-conversion REQUIRED)
+find_package(GTest REQUIRED)
 
 # Folly and its deps
 set(FOLLY_INCLUDES "")
-subdirlist(FOLY_DEPS "${FOLLY_INSTALLED_AT}")
-foreach(DIRNAME ${FOLY_DEPS})
+subdirlist(FOLLY_DEPS "${FOLLY_INSTALLED_AT}")
+foreach(DIRNAME ${FOLLY_DEPS})
     message(STATUS "at ${DIRNAME}/")
 
     list(APPEND FOLLY_INCLUDES "${FOLLY_INSTALLED_AT}/${DIRNAME}/include")
@@ -61,19 +62,34 @@ endforeach()
 
 # add_executable(1_style      src/1_style.cpp)
 
-add_executable(4_coroutines src/4_coroutines.cpp)
-target_compile_options(4_coroutines PRIVATE "-fcoroutines-ts")
+add_executable(4_coroutines_std_experimental src/4_coroutines_std_experimental.cpp)
+target_compile_options(4_coroutines_std_experimental PRIVATE "-fcoroutines-ts")
 
 
-add_executable(4_coroutines_folly src/4_coroutines_folly.cpp)
-target_compile_options(4_coroutines_folly PRIVATE "-fcoroutines-ts")
-target_include_directories(4_coroutines_folly PRIVATE "${FOLLY_INCLUDES}")
+add_executable(5_coroutines src/5_coroutines.cpp)
+target_compile_options(5_coroutines PRIVATE "-fcoroutines-ts")
+target_include_directories(5_coroutines PRIVATE "${FOLLY_INCLUDES}")
 target_link_libraries(
-    4_coroutines_folly
+    5_coroutines
     PRIVATE
     Threads::Threads
     double-conversion
     event
+    gtest
+    ${FOLLY_LIBS}
+    ${Boost_LIBRARIES}
+)
+
+add_executable(6_coroutines_and_futures src/6_coroutines_and_futures.cpp)
+target_compile_options(6_coroutines_and_futures PRIVATE "-fcoroutines-ts")
+target_include_directories(6_coroutines_and_futures PRIVATE "${FOLLY_INCLUDES}")
+target_link_libraries(
+    6_coroutines_and_futures
+    PRIVATE
+    Threads::Threads
+    double-conversion
+    event
+    gtest
     ${FOLLY_LIBS}
     ${Boost_LIBRARIES}
 )
