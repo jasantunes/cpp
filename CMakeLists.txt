@@ -60,7 +60,8 @@ foreach(DIRNAME ${FOLLY_DEPS})
     list(APPEND FOLLY_LIBS "${FIRST_LIB}")
 endforeach()
 
-# add_executable(1_style      src/1_style.cpp)
+add_executable(1_style      src/1_style.cpp)
+add_executable(sandbox      src/sandbox.cpp)
 
 add_executable(4_coroutines_std_experimental src/4_coroutines_std_experimental.cpp)
 target_compile_options(4_coroutines_std_experimental PRIVATE "-fcoroutines-ts")
