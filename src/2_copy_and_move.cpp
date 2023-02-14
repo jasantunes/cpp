@@ -52,6 +52,21 @@ A return_move_lvalue(A& rvalue) {
   return std::move(rvalue);
 }
 
+// Inheritance
+struct Base {
+  Base (A a) : a_(a) {}
+  A a_;
+};
+
+struct Derived: public Base {
+  Derived(A a) : Base(a) {}
+};
+
+struct DerivedWithMove: public Base {
+  DerivedWithMove(A a) : Base(std::move(a)) {}
+};
+
+
 int main() {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -122,6 +137,18 @@ int main() {
     std::cout << "# using return move (lvalue)" << std::endl;
     A x = A("x");
     return_move_lvalue(x);
+  }
+
+  {
+    std::cout << "# inheritance (1)" << std::endl;
+    A x = A("x");
+    Derived d(x);
+  }
+
+  {
+    std::cout << "# inheritance (2)" << std::endl;
+    A x = A("x");
+    DerivedWithMove d(x);
   }
 
 #pragma GCC diagnostic pop
