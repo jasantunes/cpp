@@ -72,27 +72,14 @@ target_compile_options(4_std_coroutines PRIVATE "-fcoroutines-ts")
 add_executable(5_folly_coroutines src/5_folly_coroutines.cpp)
 target_compile_options(5_folly_coroutines PRIVATE "-fcoroutines-ts")
 target_include_directories(5_folly_coroutines PRIVATE "${FOLLY_INCLUDES}")
-target_link_libraries(
-  5_folly_coroutines
-  PRIVATE
-  Threads::Threads
-  double-conversion
-  event
-  gtest
-  ${FOLLY_LIBS}
-  ${Boost_LIBRARIES}
-  )
+target_link_libraries(5_folly_coroutines PRIVATE Threads::Threads double-conversion event gtest ${FOLLY_LIBS} ${Boost_LIBRARIES})
 
 add_executable(6_folly_coroutines_and_futures src/6_folly_coroutines_and_futures.cpp)
 target_compile_options(6_folly_coroutines_and_futures PRIVATE "-fcoroutines-ts")
 target_include_directories(6_folly_coroutines_and_futures PRIVATE "${FOLLY_INCLUDES}")
-target_link_libraries(
-    6_folly_coroutines_and_futures
-    PRIVATE
-    Threads::Threads
-    double-conversion
-    event
-    gtest
-    ${FOLLY_LIBS}
-    ${Boost_LIBRARIES}
-)
+target_link_libraries(6_folly_coroutines_and_futures PRIVATE Threads::Threads double-conversion event gtest ${FOLLY_LIBS} ${Boost_LIBRARIES})
+
+add_executable(8_folly_optional src/8_folly_optional.cpp)
+target_compile_options(8_folly_optional PRIVATE "-fcoroutines-ts")
+target_include_directories(8_folly_optional PRIVATE "${FOLLY_INCLUDES}")
+target_link_libraries(8_folly_optional PRIVATE Threads::Threads double-conversion event gtest ${FOLLY_LIBS} ${Boost_LIBRARIES})
