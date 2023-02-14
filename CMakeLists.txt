@@ -60,32 +60,34 @@ foreach(DIRNAME ${FOLLY_DEPS})
     list(APPEND FOLLY_LIBS "${FIRST_LIB}")
 endforeach()
 
-add_executable(1_style      src/1_style.cpp)
-add_executable(sandbox      src/sandbox.cpp)
+add_executable(1_style          src/1_style.cpp)
+add_executable(2_copy_and_move  src/2_copy_and_move.cpp)
+add_executable(3_smart_pointers src/3_smart_pointers.cpp)
+add_executable(7_templates      src/7_templates.cpp)
+add_executable(sandbox          src/sandbox.cpp)
 
-add_executable(4_coroutines_std_experimental src/4_coroutines_std_experimental.cpp)
-target_compile_options(4_coroutines_std_experimental PRIVATE "-fcoroutines-ts")
+add_executable(4_std_coroutines src/4_std_coroutines.cpp)
+target_compile_options(4_std_coroutines PRIVATE "-fcoroutines-ts")
 
-
-add_executable(5_coroutines src/5_coroutines.cpp)
-target_compile_options(5_coroutines PRIVATE "-fcoroutines-ts")
-target_include_directories(5_coroutines PRIVATE "${FOLLY_INCLUDES}")
+add_executable(5_folly_coroutines src/5_folly_coroutines.cpp)
+target_compile_options(5_folly_coroutines PRIVATE "-fcoroutines-ts")
+target_include_directories(5_folly_coroutines PRIVATE "${FOLLY_INCLUDES}")
 target_link_libraries(
-    5_coroutines
-    PRIVATE
-    Threads::Threads
-    double-conversion
-    event
-    gtest
-    ${FOLLY_LIBS}
-    ${Boost_LIBRARIES}
-)
+  5_folly_coroutines
+  PRIVATE
+  Threads::Threads
+  double-conversion
+  event
+  gtest
+  ${FOLLY_LIBS}
+  ${Boost_LIBRARIES}
+  )
 
-add_executable(6_coroutines_and_futures src/6_coroutines_and_futures.cpp)
-target_compile_options(6_coroutines_and_futures PRIVATE "-fcoroutines-ts")
-target_include_directories(6_coroutines_and_futures PRIVATE "${FOLLY_INCLUDES}")
+add_executable(6_folly_coroutines_and_futures src/6_folly_coroutines_and_futures.cpp)
+target_compile_options(6_folly_coroutines_and_futures PRIVATE "-fcoroutines-ts")
+target_include_directories(6_folly_coroutines_and_futures PRIVATE "${FOLLY_INCLUDES}")
 target_link_libraries(
-    6_coroutines_and_futures
+    6_folly_coroutines_and_futures
     PRIVATE
     Threads::Threads
     double-conversion

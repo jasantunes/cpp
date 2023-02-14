@@ -97,7 +97,7 @@ Task<int> taskWithBaton(Baton& b) {
   co_return 1;
 }
 
-Task<int> coroWothBatonRunsConcurrently(Baton& b) {
+Task<int> coroWithBatonRunsConcurrently(Baton& b) {
   auto [result1, result2] =
       co_await collectAll(task1(), taskWithBaton(b));
   co_return result1 + result2;
@@ -136,10 +136,10 @@ int main(int argc, char** argv) {
   }));
 
 
-  std::cout << "===== coroWothBatonRunsConcurrently" << std::endl;
-  // blockingWait(coroWothBatonRunsConcurrently(b).scheduleOn(executor.get()));
+  std::cout << "===== coroWithBatonRunsConcurrently" << std::endl;
+  // blockingWait(coroWithBatonRunsConcurrently(b).scheduleOn(executor.get()));
   Baton b;
-  TaskWithExecutor te = coroWothBatonRunsConcurrently(b).scheduleOn(executor);
+  TaskWithExecutor te = coroWithBatonRunsConcurrently(b).scheduleOn(executor);
   auto sf = std::move(te).start();
   // executor.step();
   std::cout << "Sleeping for 1 sec then calling baton.post()" << std::endl;

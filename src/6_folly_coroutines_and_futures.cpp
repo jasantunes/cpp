@@ -20,7 +20,7 @@ Task<void> coroHandlesException() {
   EXPECT_EQ(42, co_await std::move(future42));
 
   // Keep in mind that an Awaitable may result in an exception,
-  // o you'll have to use try-catch blocks to handle errors.
+  // or you'll have to use try-catch blocks to handle errors.
   try {
     co_await coroThrowsException();
   } catch (const std::logic_error&) {
