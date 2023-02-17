@@ -1,10 +1,5 @@
-#include <memory>
-#include <vector>
 #include <iostream>
-#include <chrono>
-
-
-namespace foo {
+#include <string>
 
 struct Var {
   Var(int i) {
@@ -16,93 +11,110 @@ struct Var {
   int value;
 };
 
-struct Data : Var {
-  Data(int i) : Var(i) {}
-  Data() : Var(0) {}
-  std::string to_string() {
-    return "Data";
-  }
-};
-
-template <typename T>
+namespace foo {
 class Foo {
-  public:
-  explicit Foo() {}
-  explicit Foo(T data) {}
+public:
+  explicit Foo() : data(0) {}
+  explicit Foo(int data) : data(data) {}
+  void set(int data) { data = data; }
 
-  void set();
+  // nonspecialized template member function
+  template <typename V> V get();
 
-  template <typename V>
-  V get(T i);
+  // specialized member function
+  std::string get();
 
-  std::string get(T i);
+protected:
+  int data;
 };
+
+// nonspecialized template member function
+template <typename V>
+V Foo::get() {
+  std::cout << "calling template method" << std::endl;
+  return V(data);
+}
+
+// specialized member function
+template <>
+std::string Foo::get() {
+  std::cout << "calling specialized template method" << std::endl;
+  return "";
+}
 } // namespace foo
 
-namespace foo {
-  template <typename T>
-  void Foo<T>::set() {}
 
-  template <typename T>
-  template <typename V>
-  V Foo<T>::get(T i) {
-    return V(i);
-  }
+struct Type {};
 
-  template <typename T>
-  std::string Foo<T>::get(T i) {
-    return i.to_string();
-  }
+namespace bar {
+template <typename T>
+class Bar {
+public:
+  explicit Bar() : data(0) {}
+  explicit Bar(int data) : data(data) {}
+  void set(int data) { data = data; }
 
-} // namespace foo
+  // nonspecialized template member function
+  template <typename V> V get();
 
-namespace foo {
-  template <>
-  std::string Foo<int>::get(int i) {
-    return "template specialization: string get(): " + std::to_string(i);
-  }
+  // specialized member function
+  // std::string get();
+  // cannot specialize (with 'template<>') a member of an unspecialized template
+  // instead we create a regular function
 
-  template <>
-  template <typename V>
-  V Foo<int>::get(int i) {
-    std::cout << "template specialization: V get(): ";
-    return V(i);
-  }
-} // namespace foo
+protected:
+  int data;
+};
 
-using FooInt = foo::Foo<int>;
+// nonspecialized template function (non-member)
+template <typename V>
+V get_(int data) {
+  std::cout << "calling template method" << std::endl;
+  return V(data);
+}
+// specialized template function (non-member)
+template <>
+std::string get_(int data) {
+  std::cout << "calling specialized template method" << std::endl;
+  return "";
+}
+
+// nonspecialized template member function that calls (non)specialized template function
+template <typename T>
+template <typename V>
+V Bar<T>::get() {
+  return get_<V>(data);
+}
+} // namespace bar
 
 using namespace foo;
+using namespace bar;
 int main() {
 
   {
-    std::cout << "===== template =====" << std::endl;
-    auto f = foo::Foo<Data>(Data());
-    auto two = Data(2);
-    f.set();
-    std::cout << "V get<Var>() -> " << f.get<Var>(two).value << std::endl;
-    std::string out1 = f.get(4);
-    std::cout << "string get() -> " << out1 << std::endl;
+    std::cout << "===== regular class w/ template method =====" << std::endl;
+    auto f = Foo(10);
+    f.set(20);
+    std::string out = f.get<std::string>();
+    Var v = f.get<Var>();
   }
 
   {
-    std::cout << "===== specialized template =====" << std::endl;
-    auto f = foo::Foo<int>();
-    f.set();
-    std::cout << "V get<Var>() -> " << f.get<Var>(2).value << std::endl;
-    std::string out1 = f.get(4);
-    std::cout << "string get() -> " << out1 << std::endl;
+    std::cout << "===== template class w/ template method =====" << std::endl;
+    auto b = Bar<Type>(10);
+    b.set(20);
+    std::string out = b.get<std::string>();
+    Var v = b.get<Var>();
   }
 
   {
-    std::cout << "===== FooInt =====" << std::endl;
-    auto f = FooInt();
-    f.set();
-    std::cout << "V get<Var>() -> " << f.get<Var>(2).value << std::endl;
-    std::string out1 = f.get(4);
-    std::cout << "string get() -> " << out1 << std::endl;
+    using BarType = Bar<Type>;
+    std::cout << "===== template class w/ template method =====" << std::endl;
+    auto b = BarType(10);
+    b.set(20);
+    std::string out = b.get<std::string>();
+    Var v = b.get<Var>();
   }
-
 
   return 0;
 }
