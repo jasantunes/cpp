@@ -11,15 +11,15 @@
 // Don't use `#define` or `static const`, instead use `static constexpr`.
 static constexpr int BASE{2};
 
-class Interface {
+class IFoo {
  public:
   virtual size_t getSize() const = 0; // Pure virtual function
-  virtual ~Interface() = default; // TODO: why do we need this?
+  virtual ~IFoo() = default; // TODO: why do we need this?
 };
 
-class Base : public Interface {
+class Foo : public IFoo {
  public:
-  Base(int param1) : member1_(param1) {}
+  Foo(int param1) : member1_(param1) {}
 
   // Always mark read-only methods with `const`.
   size_t getSize() const {
@@ -27,27 +27,32 @@ class Base : public Interface {
   }
 
   // Factory Pattern
-  static std::shared_ptr<Base> factoryCreate(int param) {
-    return std::make_shared<Base>(param);
+  static std::shared_ptr<Foo> factoryCreate(int param) {
+    return std::make_shared<Foo>(param);
   }
 
  protected:
-  // TODO: Should we always initialize members explictly?
+  // Always initialize members explictly
   int member1_{};
 };
 
-class Derived : public Base {
+class Bar : public Foo {
  public:
-  // Parameters should be passed by ref unless they're basic types.
-  Derived(const std::string& param2) : Base(0), member2_(param2) {}
+  // Parameters in constructor should be passes by value and then moved.
+  Bar(std::string param2) : Foo(0), member2_(std::move(param2)) {}
 
   // OK to override because method is virtual.
   size_t getSize() const override {
     return member2_.size();
   }
 
+  // Parameters should be passed by ref unless they're basic types.
+  void setMember(const std::string& val) {
+    member2_ = val;
+  }
+
  private:
-  const std::string member2_{};
+  std::string member2_{};
 };
 
 int foo(int /*unused*/) {
@@ -55,7 +60,7 @@ int foo(int /*unused*/) {
 }
 
 int main() {
-  Derived derived("foo");
+  Bar derived("foo");
   constexpr std::array<int, 10> myArray{7, 4, 9, 1, 6, 2, 3, 5, 8, 0};
 
   // Prefer auto over explicitly specifying the type.
