@@ -41,15 +41,17 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(event REQUIRED libevent)
 find_package(Boost COMPONENTS system context thread REQUIRED)
 find_package(Threads REQUIRED)
-# find_package(fmt CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 # find_package(gflags REQUIRED)
 find_package(double-conversion REQUIRED)
 find_package(GTest REQUIRED)
-find_package(fmt)
+find_package(magic_enum CONFIG REQUIRED)
 
 # Folly and its deps
 set(FOLLY_INCLUDES "")
-subdirlist(FOLLY_DEPS "${FOLLY_INSTALLED_AT}")
+message(STATUS "FOLLY_INSTALLED_AT=${FOLLY_INSTALLED_AT}")
+SUBDIRLIST(FOLLY_DEPS "${FOLLY_INSTALLED_AT}")
+message(STATUS "FOLLY_DEPS=${FOLLY_DEPS}")
 foreach(DIRNAME ${FOLLY_DEPS})
     message(STATUS "at ${DIRNAME}/")
 
@@ -60,6 +62,16 @@ foreach(DIRNAME ${FOLLY_DEPS})
     message(STATUS "Found lib: ${FIRST_LIB}")
     list(APPEND FOLLY_LIBS "${FIRST_LIB}")
 endforeach()
+message(STATUS "FOLLY_LIBS=${FOLLY_LIBS}")
+
+# Folly's benchmark
+find_file(FOLLY_BENCHMARK
+  NAMES "Benchmark.cpp"
+  PATHS "${FOLLY_INSTALLED_AT}/../folly/folly"
+  NO_DEFAULT_PATH
+  REQUIRED)
+message("FOLLY_BENCHMARK=${FOLLY_BENCHMARK}")
+
 
 add_executable(00_sandbox        src/00_sandbox.cpp)
 add_executable(01_style          src/01_style.cpp)
@@ -84,3 +96,11 @@ add_executable(08_folly_optional src/08_folly_optional.cpp)
 target_compile_options(08_folly_optional PRIVATE "-fcoroutines-ts")
 target_include_directories(08_folly_optional PRIVATE "${FOLLY_INCLUDES}")
 target_link_libraries(08_folly_optional PRIVATE Threads::Threads double-conversion event gtest ${FOLLY_LIBS} ${Boost_LIBRARIES})
+
+add_executable(09_strings        src/09_strings.cpp)
+target_link_libraries(09_strings PRIVATE fmt::fmt magic_enum::magic_enum)
+
+add_executable(10_benchmark src/10_benchmark.cpp "${FOLLY_BENCHMARK}")
+target_include_directories(10_benchmark PRIVATE "${FOLLY_INCLUDES}")
+target_link_libraries(10_benchmark PUBLIC Threads::Threads double-conversion event gtest ${FOLLY_LIBS} ${Boost_LIBRARIES})
+target_compile_options(10_benchmark PRIVATE "-O3" "-DNDEBUG")
