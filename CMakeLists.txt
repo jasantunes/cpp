@@ -35,6 +35,7 @@ find_package(double-conversion REQUIRED)
 find_package(GTest REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 find_package (glog REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 
 # Folly and its deps
 set(FOLLY_LIBS Threads::Threads double-conversion event gtest ${Boost_LIBRARIES})
@@ -69,32 +70,38 @@ add_executable(02_copy_and_move src/02_copy_and_move.cpp)
 add_executable(03_smart_pointers src/03_smart_pointers.cpp)
 
 add_executable(04_std_coroutines src/04_std_coroutines.cpp)
-target_compile_options(04_std_coroutines PRIVATE "-fcoroutines-ts")
+target_compile_options(04_std_coroutines PRIVATE -fcoroutines-ts)
 
 add_executable(05_folly_coroutines src/05_folly_coroutines.cpp)
-target_compile_options(05_folly_coroutines PRIVATE "-fcoroutines-ts")
+target_compile_options(05_folly_coroutines PRIVATE -fcoroutines-ts)
 target_include_directories(05_folly_coroutines PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(05_folly_coroutines PRIVATE ${FOLLY_LIBS} log4cxx)
 
 add_executable(06_folly_coroutines_and_futures src/06_folly_coroutines_and_futures.cpp)
-target_compile_options(06_folly_coroutines_and_futures PRIVATE "-fcoroutines-ts")
+target_compile_options(06_folly_coroutines_and_futures PRIVATE -fcoroutines-ts)
 target_include_directories(06_folly_coroutines_and_futures PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(06_folly_coroutines_and_futures PRIVATE ${FOLLY_LIBS})
 
 add_executable(07_templates src/07_templates.cpp)
 
 add_executable(08_folly_optional src/08_folly_optional.cpp)
-target_compile_options(08_folly_optional PRIVATE "-fcoroutines-ts")
+target_compile_options(08_folly_optional PRIVATE -fcoroutines-ts)
 target_include_directories(08_folly_optional PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(08_folly_optional PRIVATE ${FOLLY_LIBS})
 
 add_executable(09_strings src/09_strings.cpp)
 target_link_libraries(09_strings PRIVATE fmt::fmt magic_enum::magic_enum)
+# https://clang.llvm.org/docs/AddressSanitizer.html#how-to-build
+target_compile_options(09_strings PRIVATE -O1 -g -fsanitize=address -fno-omit-frame-pointer)
+target_link_options(09_strings PRIVATE -g -fsanitize=address)
 
 add_executable(10_benchmark src/10_benchmark.cpp ${FOLLY_BENCHMARK})
 target_include_directories(10_benchmark PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(10_benchmark PRIVATE ${FOLLY_LIBS})
-target_compile_options(10_benchmark PRIVATE "-O3" "-DNDEBUG")
+target_compile_options(10_benchmark PRIVATE -O3 -DNDEBUG)
 
 add_executable(11_logging src/11_logging.cpp)
 target_link_libraries(11_logging PRIVATE glog::glog)
+
+add_executable(12_google_test src/12_google_test.cpp)
+target_link_libraries(12_google_test PRIVATE GTest::gtest GTest::gmock GTest::gmock_main)
