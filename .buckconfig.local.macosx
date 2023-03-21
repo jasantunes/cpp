@@ -1,0 +1,203 @@
+########## DO NOT MODIFY THIS GENERATED FILE ########################
+#
+# @generated SignedSource<<bbfbdffeba856bdfc64fe1fccf961513>>
+#
+# Make necessary changes to `.buckconfig.in` and regenerate by running (inside fbcode):
+#
+#  $ python3 tools/build/buck/gen_modes.py
+#
+
+[fbcode]
+  check_noop_rules = true
+  sanitizer =
+  default_allocator = malloc
+  buck_platform_format = {platform}
+  enabled_rule_types = \
+    antlr3_srcs, \
+    antlr4_srcs, \
+    buck_export_file, \
+    buck_filegroup, \
+    buck_genrule, \
+    buck_sh_binary, \
+    buck_sh_test, \
+    buck_zip_file, \
+    cpp_benchmark, \
+    cpp_binary, \
+    cpp_library, \
+    cpp_library_external, \
+    cpp_module_external, \
+    cpp_python_extension, \
+    cpp_unittest, \
+    custom_rule, \
+    custom_unittest, \
+    cython_library, \
+    dewey_artifact, \
+    export_file, \
+    java_binary, \
+    java_library, \
+    java_shaded_jar, \
+    java_test, \
+    prebuilt_jar, \
+    python_binary, \
+    python_library, \
+    python_unittest, \
+    python_wheel, \
+    remote_file, \
+    rust_binary, \
+    rust_bindgen_library, \
+    rust_cxx_bridge, \
+    rust_library, \
+    rust_unittest, \
+    scala_library, \
+    sparkapp_shaded_jar, \
+    thrift_library, \
+    ws_file_system_shaded_jar, \
+    go_library, \
+    cgo_library, \
+    go_binary, \
+    go_exported_library, \
+    go_unittest, \
+    go_test
+  mode_mac_enabled = true
+  supports_build_info_linker_flags = true
+  supports_custom_allocators = true
+  split-dwarf-support = false
+  os = macos
+
+[protobuf]
+  use_v3 = true
+
+[thrift]
+  supported_languages = \
+    android \
+    javadeprecated \
+    java-swift \
+    cpp2 \
+    py \
+    py-asyncio \
+    py3 \
+    python \
+    rust
+
+[xplat]
+  openssl_111_migration = True
+  openssl_profile = fbcode
+  available_platforms = CXX
+
+[cxx]
+  archiver_platform = macos
+  host_platform = macosx-x86_64_minimal_xcode
+  use_default_autofdo_profile = false
+  extra_cxxflags = -Wno-deprecated-declarations
+  minimal_xcode_toolchain_uses_fbcode_linker_wrapper = true
+
+[cxx#macosx-x86_64]
+  ld = fbcode//tools/build/buck/wrappers:xplat_fbcode_ld_wrapper.sh
+  ldflags = \
+    --cflag=-arch \
+    --cflag=x86_64
+  link_path_normalization_args_enabled = true
+
+[cxx#macosx-arm64]
+  ld = fbcode//tools/build/buck/wrappers:xplat_fbcode_ld_wrapper.sh
+  ldflags = \
+    --cflag=-arch \
+    --cflag=arm64
+  link_path_normalization_args_enabled = true
+
+[rust#macosx-x86_64]
+  compiler = fbsource//xplat/rust/toolchain/current:buck_rustc
+  rustdoc = fbsource//xplat/rust/toolchain/current:buck_rustdoc_translated
+  rustc_target_triple = x86_64-apple-darwin
+
+[rust#macosx-x86_64_minimal_xcode]
+  compiler = fbsource//xplat/rust/toolchain/current:buck_rustc
+  rustdoc = fbsource//xplat/rust/toolchain/current:buck_rustdoc_translated
+  rustc_target_triple = x86_64-apple-darwin
+
+[rust#macosx-arm64]
+  compiler = fbsource//xplat/rust/toolchain/current:buck_rustc
+  rustdoc = fbsource//xplat/rust/toolchain/current:buck_rustdoc_translated
+  rustc_plugin_platform = $(config cxx.host_platform)
+  rustc_target_triple = aarch64-apple-darwin
+
+[rust#macosx-arm64_minimal_xcode]
+  compiler = fbsource//xplat/rust/toolchain/current:buck_rustc
+  rustdoc = fbsource//xplat/rust/toolchain/current:buck_rustdoc_translated
+  rustc_plugin_platform = $(config cxx.host_platform)
+  rustc_target_triple = aarch64-apple-darwin
+
+[go#darwin_amd64]
+  root = $(config repositories.fbcode)/../third-party/go
+  tool_dir = $(config repositories.fbcode)/../third-party/go/pkg/tool/darwin_amd64
+  cxx_platform = $(config cxx.host_platform)
+  os = darwin
+  arch = amd64
+  test2json = fbsource//third-party/go:pkg/tool/darwin_amd64/test2json.exe
+
+[parser]
+  target_platforms = ovr_config//platform/macos:x86_64-fbsource-minimal
+
+[project]
+  ide = intellij
+
+[go]
+  default_platform = darwin_amd64
+
+[misc]
+  strip_binaries = none
+
+[cache]
+  http_thread_pool_size = 30
+
+[cxx-config#macosx-arm64_minimal_xcode]
+  archive_contents = normal
+  ar = fbsource//xplat/toolchains/minimal_xcode:ar
+  as = fbsource//xplat/toolchains/minimal_xcode:clang
+  as_type = clang
+  asm = fbsource//xplat/toolchains/minimal_xcode:clang
+  asm_type = clang
+  asmpp = fbsource//xplat/toolchains/minimal_xcode:clang
+  asmpp_type = clang
+  aspp = fbsource//xplat/toolchains/minimal_xcode:clang
+  aspp_type = clang
+  cc = fbsource//xplat/toolchains/minimal_xcode:clang
+  cc_type = clang
+  cpp = fbsource//xplat/toolchains/minimal_xcode:clang
+  cpp_type = clang
+  cxx = fbsource//xplat/toolchains/minimal_xcode:clang
+  cxx_type = clang
+  cxxpp = fbsource//xplat/toolchains/minimal_xcode:clang
+  cxxpp_type = clang
+  nm = fbsource//xplat/toolchains/minimal_xcode:nm
+  ranlib = fbsource//xplat/toolchains/minimal_xcode:ranlib
+  strip = fbsource//xplat/toolchains/minimal_xcode:strip
+
+[cxx-config#macosx-x86_64_minimal_xcode]
+  archive_contents = normal
+  ar = fbsource//xplat/toolchains/minimal_xcode:ar
+  as = fbsource//xplat/toolchains/minimal_xcode:clang
+  as_type = clang
+  asm = fbsource//xplat/toolchains/minimal_xcode:clang
+  asm_type = clang
+  asmpp = fbsource//xplat/toolchains/minimal_xcode:clang
+  asmpp_type = clang
+  aspp = fbsource//xplat/toolchains/minimal_xcode:clang
+  aspp_type = clang
+  cc = fbsource//xplat/toolchains/minimal_xcode:clang
+  cc_type = clang
+  cpp = fbsource//xplat/toolchains/minimal_xcode:clang
+  cpp_type = clang
+  cxx = fbsource//xplat/toolchains/minimal_xcode:clang
+  cxx_type = clang
+  cxxpp = fbsource//xplat/toolchains/minimal_xcode:clang
+  cxxpp_type = clang
+  nm = fbsource//xplat/toolchains/minimal_xcode:nm
+  ranlib = fbsource//xplat/toolchains/minimal_xcode:ranlib
+  strip = fbsource//xplat/toolchains/minimal_xcode:strip
+
+[remoteexecution]
+  auto_re_build_projects_whitelist =
+
+[scuba]
+  defaults = "{\"normals\": {\"fbcode_build_mode\": \"mac\"}}"

@@ -100,8 +100,12 @@ target_include_directories(10_benchmark PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(10_benchmark PRIVATE ${FOLLY_LIBS})
 target_compile_options(10_benchmark PRIVATE -O3 -DNDEBUG)
 
-add_executable(11_logging src/11_logging.cpp)
-target_link_libraries(11_logging PRIVATE glog::glog)
+add_executable(11_logging_glog src/11_logging_glog.cpp)
+target_link_libraries(11_logging_glog PRIVATE glog::glog)
 
-add_executable(12_google_test src/12_google_test.cpp)
-target_link_libraries(12_google_test PRIVATE GTest::gtest GTest::gmock GTest::gmock_main)
+add_executable(12_logging_folly src/12_logging_folly.cpp)
+# target_include_directories(12_logging_folly PRIVATE ${FOLLY_INCLUDES})
+target_link_libraries(12_logging_folly PRIVATE fmt::fmt ${FOLLY_LIBS})
+
+add_executable(13_google_test src/13_google_test.cpp)
+target_link_libraries(13_google_test PRIVATE GTest::gtest GTest::gmock GTest::gmock_main)

@@ -1,16 +1,26 @@
-#include <memory>
-#include <vector>
-#include <iostream>
+#include <fmt/core.h>
 #include <fmt/format.h>
+#include <iostream>
+#include <magic_enum.hpp>
 
-using namespace std;
 
-template <typename T>
-class Foo {
-};
+enum class Source { UNKNOWN = 0, BIGCACHE, ZIPPYDB };
+template <typename Enum>
+std::string getLowerCaseEnumName(Enum type) {
+  auto lowerCaseEnumName =
+      static_cast<std::string>(magic_enum::enum_name(type));
+  std::transform(
+      lowerCaseEnumName.begin(),
+      lowerCaseEnumName.end(),
+      lowerCaseEnumName.begin(),
+      ::tolower);
+  return lowerCaseEnumName;
+}
 
-class Bar : public Foo<int> {
-};
+template <typename Enum>
+std::string getFormattedStatsName(Enum type) {
+  return getLowerCaseEnumName(type) + "_";
+}
 
 int main() {
   {
@@ -18,5 +28,13 @@ int main() {
     std::cout << fmt::format("var: {}", var) << std::endl;
   }
 
-}
+  {
+    std::string name = std::string(magic_enum::enum_name(Source::BIGCACHE));
+    std::cout << name << std::endl;
+  }
 
+  {
+    std::string name = getFormattedStatsName(Source::BIGCACHE);
+    std::cout << name << std::endl;
+  }
+}

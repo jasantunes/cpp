@@ -6,9 +6,16 @@
 // #define GOOGLE_STRIP_LOG 3   // FATAL
 
 #include <glog/logging.h>
+#include <folly/logging/xlog.h>
 #include <iomanip>      // std::setw
 #include <chrono> // sleep
 #include <thread> // sleep
+
+// Configure folly to enable INFO+ messages, and everything else to
+// enable WARNING+.
+//
+// Set the default log handler to log asynchronously by default
+FOLLY_INIT_LOGGING_CONFIG(".=WARNING,folly=INFO; default:async=true,sync_level=WARNING");
 
 /* This function writes a prefix that matches glog's default format.
 * (The third parameter can be used to receive user-supplied data, and is
