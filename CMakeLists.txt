@@ -36,6 +36,7 @@ find_package(GTest REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 find_package (glog REQUIRED)
 find_package(GTest CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 
 # Folly and its deps
 set(FOLLY_LIBS Threads::Threads double-conversion event gtest ${Boost_LIBRARIES})
@@ -109,3 +110,8 @@ target_link_libraries(12_logging_folly PRIVATE fmt::fmt ${FOLLY_LIBS})
 
 add_executable(13_google_test src/13_google_test.cpp)
 target_link_libraries(13_google_test PRIVATE GTest::gtest GTest::gmock GTest::gmock_main)
+
+add_executable(14_range src/14_range.cpp ${FOLLY_BENCHMARK})
+target_include_directories(14_range PRIVATE ${FOLLY_INCLUDES})
+target_link_libraries(14_range PRIVATE ${FOLLY_LIBS})
+target_compile_options(14_range PRIVATE -O3 -DNDEBUG)
