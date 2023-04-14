@@ -3,9 +3,8 @@
 #include <iostream>
 #include <array>
 #include <optional>
-#include <range/v3/all.hpp>
-// #include <range/v3/view/join.hpp>
 #include <algorithm> // copy
+#include <numeric>
 
 
 bool foo(std::string& str) {

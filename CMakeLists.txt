@@ -105,7 +105,7 @@ add_executable(11_logging_glog src/11_logging_glog.cpp)
 target_link_libraries(11_logging_glog PRIVATE glog::glog)
 
 add_executable(12_logging_folly src/12_logging_folly.cpp)
-# target_include_directories(12_logging_folly PRIVATE ${FOLLY_INCLUDES})
+target_include_directories(12_logging_folly PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(12_logging_folly PRIVATE fmt::fmt ${FOLLY_LIBS})
 
 add_executable(13_google_test src/13_google_test.cpp)
@@ -114,4 +114,6 @@ target_link_libraries(13_google_test PRIVATE GTest::gtest GTest::gmock GTest::gm
 add_executable(14_range src/14_range.cpp ${FOLLY_BENCHMARK})
 target_include_directories(14_range PRIVATE ${FOLLY_INCLUDES})
 target_link_libraries(14_range PRIVATE ${FOLLY_LIBS})
-target_compile_options(14_range PRIVATE -O3 -DNDEBUG)
+
+add_executable(15_functional src/15_functional.cpp)
+
