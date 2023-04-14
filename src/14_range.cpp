@@ -5,128 +5,164 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <functional> // std::reference_wrapper
 #include <range/v3/all.hpp>
 #include <folly/Benchmark.h>
+#include <initializer_list> // std::initializer_list
+#include <span> // std::span
 
-using optional_strings_t = std::array<std::optional<std::string>, 2>;
+using optional_string_t = std::optional<std::string>;
+using optional_ref_string_t = std::optional<std::reference_wrapper<std::string>>;
 
-template<typename T>
-inline bool hasValue(const std::optional<T>& param) {
-  return bool{param};
-}
-
-constexpr auto filter_string = ranges::views::filter([](const std::optional<std::string>& elem){return elem.has_value();});
-constexpr auto filter_sv = ranges::views::filter(hasValue<std::string_view>);
-
-template<typename T>
-inline ranges::filter_view<ranges::ref_view<std::array<std::optional<T>, 2>>, bool (*)(const std::optional<T> &)> getRangeView(const T& elem0, const T& elem1) {
-  std::array<std::optional<T>, 2> arr  = (elem0 != elem1)
-                  ? std::array<std::optional<T>, 2>{elem0, elem1}
-                  : std::array<std::optional<T>, 2>{elem0, std::nullopt};
-  return arr | ranges::views::filter(hasValue<T>);
-}
-
-template<typename T>
-inline std::array<std::optional<T>, 2> buildArray(const T& elem0, const T& elem1) {
-  return (elem0 != elem1)
-                  ? std::array<std::optional<T>, 2>{elem0, elem1}
-                  : std::array<std::optional<T>, 2>{elem0, std::nullopt};
-}
-
-class Foo {
-  public:
-  Foo (const std::string& prefix) : prefix_(prefix) {}
-  std::string prefix_;
-};
-
-auto foo = Foo{"p1"};
-auto prefix = "p0";
+constexpr auto filter_nonempty = ranges::views::filter([](const std::string& elem){return elem.length()>0;});
+constexpr auto filter_valid = ranges::views::filter([](const optional_string_t& elem){return elem.has_value();});
+constexpr auto filter_valid_sv = ranges::views::filter([](const std::optional<std::string_view>& elem){return elem.has_value();});
+constexpr auto filter_valid2 = ranges::views::filter([](const optional_ref_string_t& elem){return elem.has_value();});
+std::string prefix = "prefix3_";
 std::string res;
 
-BENCHMARK(baseline) {
+std::array<std::string, 2> arrPrefixes{{"prefix1_", "prefix2_"}};
+
+std::vector<std::string> vecPrefixes{arrPrefixes.begin(), arrPrefixes.end()};
+std::vector<optional_string_t> prefixesOptional{arrPrefixes.begin(), arrPrefixes.end()};;
+
+
+template<typename T>
+inline std::array<T, 3> buildTempArray(const std::vector<std::string>& vec, const T& elem) {
+  std::array<T, 3> arr{};
+  std::copy(std::begin(vec), std::end(vec), std::begin(arr));
+  arr[vec.size()] = elem;
+  return arr;
+}
+
+BENCHMARK(vector_ugly_code) {
   res = prefix;
-  if (prefix != foo.prefix_) {
-    res = foo.prefix_;
+  res = prefix;
+
+  for (const auto& p : vecPrefixes) {
+    for (const auto& s : vecPrefixes) {
+      res = p + s;
+    }
   }
 }
 
-BENCHMARK(vector) {
-  std::vector<std::string> prefixes;
-  prefixes.push_back(foo.prefix_);
-  if (foo.prefix_ != prefix) {
-    prefixes.push_back(prefix);
+BENCHMARK(vector_mutation) {
+  vecPrefixes.push_back(prefix);
+
+  for (const auto& p : vecPrefixes) {
+    for (const auto& s : vecPrefixes) {
+      res = p + s;
+    }
   }
 
-  for (const auto& p : prefixes) {
-      res = p;
+  vecPrefixes.pop_back();
+}
+
+BENCHMARK(array_copy_with_optional_and_filter) {
+  auto arr = buildTempArray<std::optional<std::string>>(vecPrefixes, prefix);
+  for (const auto& p : arr | filter_valid) {
+    for (const auto& s : arr | filter_valid) {
+      res = *p + *s;
+    }
   }
 }
 
-BENCHMARK(static_vector) {
-  std::vector<std::string> prefixes;
-  BENCHMARK_SUSPEND {
-    prefixes.reserve(5);
-  }
-  prefixes.push_back(foo.prefix_);
-  if (foo.prefix_ != prefix) {
-    prefixes.push_back(prefix);
-  }
-
-  for (const auto& p : prefixes) {
-      res = p;
+BENCHMARK(array_copy_with_optional_ugly_code) {
+  auto arr = buildTempArray<std::optional<std::string>>(vecPrefixes, prefix);
+  for (auto iter0 = arr.begin(); iter0 != arr.end() && iter0->has_value(); ++iter0) {
+    for (auto iter1 = arr.begin(); iter1 != arr.end() && iter1->has_value(); ++iter1) {
+      const auto& p = **iter0;
+      const auto& s = **iter1;
+      res = p + s;
+    }
   }
 }
 
-BENCHMARK(static_vector2) {
-  std::unique_ptr<std::vector<std::string>> prefixes;
-  BENCHMARK_SUSPEND {
-    prefixes = std::make_unique<std::vector<std::string>>();
-    prefixes->reserve(2);
-  }
-  prefixes->push_back(foo.prefix_);
-  if (foo.prefix_ != prefix) {
-    prefixes->push_back(prefix);
-  }
-
-  for (const auto& p : *prefixes) {
-      res = p;
+BENCHMARK(vector_copy) {
+  std::vector<std::string> temp;
+  temp.reserve(vecPrefixes.size() + 1);
+  auto it = temp.insert(temp.begin(), vecPrefixes.begin(), vecPrefixes.end());
+  temp.insert(it, prefix);
+  for (const auto& p : temp) {
+    for (const auto& s : temp) {
+      res = p + s;
+    }
   }
 }
 
-BENCHMARK(arrays_with_optional) {
-  optional_strings_t prefixes  = (foo.prefix_ != prefix) ? optional_strings_t{foo.prefix_, prefix} : optional_strings_t{foo.prefix_, std::nullopt};
-  for (const auto& p : prefixes) {
-    if (p)
-      res = *p;
+BENCHMARK(vector_copy_with_refs) {
+  std::vector<std::reference_wrapper<std::string>> temp;
+  temp.reserve(vecPrefixes.size() + 1);
+  auto it = temp.insert(temp.begin(), vecPrefixes.begin(), vecPrefixes.end());
+  temp.insert(it, prefix);
+  for (const auto& p : temp) {
+    for (const auto& s : temp) {
+      res = p.get() + s.get();
+    }
   }
 }
 
-BENCHMARK(arrays_with_range_filter) {
-  optional_strings_t prefixes  = (foo.prefix_ != prefix) ? optional_strings_t{foo.prefix_, prefix} : optional_strings_t{foo.prefix_, std::nullopt};
-  for (const auto& p : prefixes | ranges::views::filter(hasValue<std::string>)) {
-    res = *p;
+auto lambda = [](const std::vector<std::string>& vec, const std::string& prefix){
+  if (prefix.size() == 0) {
+    std::array<std::string, 1> arr{};
+    return ranges::views::concat(vec, arr);
+  }
+  std::array<std::string, 1> arr{{prefix}};
+  return ranges::views::concat(vec, arr);
+};
+
+BENCHMARK(array_range_concat) {
+  auto final_rng = lambda(vecPrefixes, prefix);
+  // std::array<std::string, 1> arr{{prefix}};
+  // auto final_rng = ranges::views::concat(vecPrefixes, arr);
+  for (const auto& p : final_rng) {
+    for (const auto& s : final_rng) {
+        res = p + s;
+      }
   }
 }
 
-BENCHMARK(arrays_with_range_filter_string_bug) {
-  for (const auto& p : getRangeView<std::string>(foo.prefix_, prefix)) {
-    res = *p;
+BENCHMARK(array_range_concat_with_optional) {
+  std::array<optional_string_t, 1> arr{{optional_string_t{prefix}}};
+  auto final_rng = ranges::views::concat(vecPrefixes, arr);
+  for (const auto& p : final_rng | filter_valid) {
+    for (const auto& s : final_rng | filter_valid) {
+        res = *p + *s;
+      }
   }
 }
 
-BENCHMARK(arrays_with_range_filter_string) {
-  auto arr = buildArray<std::string>(foo.prefix_, prefix);
-  for (const auto& p : arr | filter_string) {
-    res = *p;
+BENCHMARK(vector_range_concat_with_optional) {
+  std::vector<optional_string_t> arr{optional_string_t{prefix}};
+  auto final_rng = ranges::views::concat(vecPrefixes, arr);
+  for (const auto& p : final_rng | filter_valid) {
+    for (const auto& s : final_rng | filter_valid) {
+        res = *p + *s;
+      }
   }
 }
 
-BENCHMARK(arrays_with_range_filter_string_view) {
-  auto arr = buildArray<std::string_view>(foo.prefix_, prefix);
-  for (const auto& p : arr | filter_sv) {
-    res = *p;
+BENCHMARK(vector_join_view) {
+  std::vector<std::vector<std::string>> vec{vecPrefixes, std::vector<std::string>{prefix}};
+  auto final_rng =  vec | ranges::views::join;
+  for (const auto& p : final_rng) {
+    for (const auto& s : final_rng) {
+        res = p + s;
+      }
   }
 }
+
+BENCHMARK(span_with_optionals_and_concat_view_array) {
+  std::array<optional_string_t, 1> arr{{optional_string_t{prefix}}};
+  std::span<std::string> sp{vecPrefixes};
+  auto final_rng = ranges::views::concat(sp, arr);
+  for (const auto& p : final_rng | filter_valid) {
+    for (const auto& s : final_rng | filter_valid) {
+        res = *p + *s;
+      }
+  }
+}
+
 
 int main() {
   folly::runBenchmarks();
