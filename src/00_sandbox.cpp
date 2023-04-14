@@ -1,25 +1,44 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <array>
+#include <optional>
+#include <range/v3/all.hpp>
+// #include <range/v3/view/join.hpp>
+#include <algorithm> // copy
 
-#include "00_sandbox.h"
 
-using namespace std;
-
-
-void Sandbox::foo(Foo foo) {
-  return;
+bool foo(std::string& str) {
+  str.assign("new value");
+  return true;
 }
-
-
+auto comma = [](std::string a, std::string b) {
+    return (a.empty()) ? std::move(b) : std::move(a) + ", " + std::move(b);
+};
 int main() {
-  auto foo = Foo();
-  auto sandbox = Sandbox();
-  sandbox.foo(foo);
-
-  std::vector<bool> vec(10, true);
-  for (auto i : vec) {
-    std::cout << i << std::endl;
+  std::string str{};
+  std::cout << "str: " << str << std::endl;
+  if (foo(str)) {
+    std::cout << "modified to: " << str << std::endl;
   }
+
+  auto vec = std::vector<std::string>{{"key1", "key2"}};
+
+  {
+    std::copy(vec.begin(), vec.end(), std::ostream_iterator<std::string>(std::cout, ", "));
+    std::cout << std::endl;
+  }
+
+  {
+    std::string s = std::accumulate(vec.begin(), vec.end(), std::string{}, comma);
+    std::cout << "vec: " << s << std::endl;
+  }
+
+  {
+    std::string s = std::reduce(vec.begin(), vec.end(), std::string{}, comma);
+    std::cout << "vec: " << s << std::endl;
+  }
+
+
 }
 
