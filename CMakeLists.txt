@@ -73,15 +73,15 @@ add_executable(03_smart_pointers src/03_smart_pointers.cpp)
 add_executable(04_std_coroutines src/04_std_coroutines.cpp)
 target_compile_options(04_std_coroutines PRIVATE -fcoroutines-ts)
 
-add_executable(05_folly_coroutines_and_futures src/05_folly_coroutines_and_futures.cpp)
-target_compile_options(05_folly_coroutines_and_futures PRIVATE -fcoroutines-ts)
-target_include_directories(05_folly_coroutines_and_futures PRIVATE ${FOLLY_INCLUDES})
-target_link_libraries(05_folly_coroutines_and_futures PRIVATE ${FOLLY_LIBS})
+add_executable(05_folly_coroutines src/05_folly_coroutines.cpp)
+target_compile_options(05_folly_coroutines PRIVATE -fcoroutines-ts)
+target_include_directories(05_folly_coroutines PRIVATE ${FOLLY_INCLUDES})
+target_link_libraries(05_folly_coroutines PRIVATE ${FOLLY_LIBS} log4cxx)
 
-add_executable(06_folly_coroutines src/06_folly_coroutines.cpp)
-target_compile_options(06_folly_coroutines PRIVATE -fcoroutines-ts)
-target_include_directories(06_folly_coroutines PRIVATE ${FOLLY_INCLUDES})
-target_link_libraries(06_folly_coroutines PRIVATE ${FOLLY_LIBS} log4cxx)
+add_executable(06_folly_synchronization src/06_folly_synchronization.cpp)
+target_compile_options(06_folly_synchronization PRIVATE -fcoroutines-ts)
+target_include_directories(06_folly_synchronization PRIVATE ${FOLLY_INCLUDES})
+target_link_libraries(06_folly_synchronization PRIVATE ${FOLLY_LIBS} log4cxx)
 
 add_executable(07_templates src/07_templates.cpp)
 
