@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 
+#include <folly/experimental/coro/AsyncScope.h>
 #include <folly/experimental/coro/Baton.h>
 #include <folly/experimental/coro/BlockingWait.h>
 #include <folly/experimental/coro/Collect.h>
