@@ -9,34 +9,39 @@
 #include <folly/experimental/coro/Sleep.h>
 #include <folly/experimental/coro/Task.h>
 #include <folly/fibers/Semaphore.h>
-
+#include <folly/futures/Future.h>
 
 
 using namespace std::chrono_literals;
-using namespace folly::coro;
-
-constexpr auto kTimeout = 5s;
 
 // Running coroutines sequentially vs concurrently.
-Task<int> coroTask(const std::string& name) {
-  std::cout << name << ": Executing..." << std::endl;
-  std::cout << name << ": done" << std::endl;
-  co_return 1;
+folly::SemiFuture<int> semiFutureTask(int val) {
+  return folly::makeSemiFuture().deferValue([=](auto) {
+    std::cout << "task " << val << ": Executing..." << std::endl;
+    std::cout << "task " << val << ": done" << std::endl;
+    return val;
+  });
 }
 
-Task<int> coroTaskWithBaton(const std::string& name, Baton& baton) {
-  std::cout << name << ": Executing..." << std::endl;
+folly::coro::Task<int> coroTask(int val) {
+  std::cout << "task " << val << ": Executing..." << std::endl;
+  std::cout << "task " << val << ": done" << std::endl;
+  co_return val;
+}
+
+folly::coro::Task<int> coroTaskWithBaton(int val, folly::coro::Baton& baton) {
+  std::cout << "task " << val << ": Executing..." << std::endl;
   co_await baton;
-  std::cout << name << ": done" << std::endl;
-  co_return 1;
+  std::cout << "task " << val << ": done" << std::endl;
+  co_return val;
 }
 
-Task<int> coroTaskWithBatonAndSemaphore(const std::string& name, Baton& baton, folly::fibers::Semaphore& semaphore) {
+folly::coro::Task<int> coroTaskWithBatonAndSemaphore(int val, folly::coro::Baton& baton, folly::fibers::Semaphore& semaphore) {
   semaphore.signal();
-  std::cout << name << ": Executing..." << std::endl;
+  std::cout << "task " << val << ": Executing..." << std::endl;
   co_await baton;
-  std::cout << name << ": done" << std::endl;
-  co_return 1;
+  std::cout << "task " << val << ": done" << std::endl;
+  co_return val;
 }
 
 
@@ -48,16 +53,16 @@ int main(int argc, char** argv) {
   {
     std::cout << "===== coroutines not synchronized" << std::endl;
     folly::coro::AsyncScope scope;
-    std::vector<Task<int>> tasks;
-    tasks.emplace_back(coroTask("task 1"));
-    tasks.emplace_back(coroTask("task 2"));
-    tasks.emplace_back(coroTask("task 3"));
+    std::vector<folly::coro::Task<int>> tasks;
+    tasks.emplace_back(coroTask(1));
+    tasks.emplace_back(coroTask(2));
+    tasks.emplace_back(coroTask(3));
 
-    scope.add(co_invoke([&]() -> Task<void> {
+    scope.add(folly::coro::co_invoke([&]() -> folly::coro::Task<void> {
         co_await collectAllRange(std::move(tasks));
     }).scheduleOn(executor));
 
-    blockingWait([&scope]()->Task<> {co_await scope.joinAsync();}().scheduleOn(executor.get()));
+    folly::coro::blockingWait([&scope]()->folly::coro::Task<> {co_await scope.joinAsync();}().scheduleOn(executor.get()));
   }
 
 
@@ -65,12 +70,12 @@ int main(int argc, char** argv) {
     std::cout << "===== coroutines synchronized with folly::coro::Baton" << std::endl;
     folly::coro::AsyncScope scope;
     folly::coro::Baton baton1, baton2, baton3;
-    std::vector<Task<int>> tasks;
-    tasks.emplace_back(coroTaskWithBaton("task 1", baton1));
-    tasks.emplace_back(coroTaskWithBaton("task 2", baton2));
-    tasks.emplace_back(coroTaskWithBaton("task 3", baton3));
+    std::vector<folly::coro::Task<int>> tasks;
+    tasks.emplace_back(coroTaskWithBaton(1, baton1));
+    tasks.emplace_back(coroTaskWithBaton(2, baton2));
+    tasks.emplace_back(coroTaskWithBaton(3, baton3));
 
-    scope.add(co_invoke([&]() -> Task<void> {
+    scope.add(folly::coro::co_invoke([&]() -> folly::coro::Task<void> {
         co_await collectAllRange(std::move(tasks));
     }).scheduleOn(executor));
 
@@ -80,7 +85,7 @@ int main(int argc, char** argv) {
     baton3.post();
     baton1.post();
     baton2.post();
-    blockingWait([&scope]()->Task<> {co_await scope.joinAsync();}().scheduleOn(executor.get()));
+    folly::coro::blockingWait([&scope]()->folly::coro::Task<> {co_await scope.joinAsync();}().scheduleOn(executor.get()));
   }
 
   {
@@ -88,21 +93,20 @@ int main(int argc, char** argv) {
     folly::coro::AsyncScope scope;
     folly::fibers::Semaphore semaphore{3};
     folly::coro::Baton baton1, baton2, baton3;
-    std::vector<Task<int>> tasks;
-    tasks.emplace_back(coroTaskWithBatonAndSemaphore("task 1", baton1, semaphore));
-    tasks.emplace_back(coroTaskWithBatonAndSemaphore("task 2", baton2, semaphore));
-    tasks.emplace_back(coroTaskWithBatonAndSemaphore("task 3", baton3, semaphore));
+    std::vector<folly::coro::Task<int>> tasks;
+    tasks.emplace_back(coroTaskWithBatonAndSemaphore(1, baton1, semaphore));
+    tasks.emplace_back(coroTaskWithBatonAndSemaphore(2, baton2, semaphore));
+    tasks.emplace_back(coroTaskWithBatonAndSemaphore(3, baton3, semaphore));
 
-    scope.add(co_invoke([&]() -> Task<void> {
+    scope.add(folly::coro::co_invoke([&]() -> folly::coro::Task<void> {
         co_await collectAllRange(std::move(tasks));
     }).scheduleOn(executor));
 
-    blockingWait([&semaphore]()->Task<> {co_await semaphore.co_wait();;}().scheduleOn(executor.get()));
-    // semaphore.wait();
+    folly::coro::blockingWait([&semaphore]()->folly::coro::Task<> {co_await semaphore.co_wait();}().scheduleOn(executor.get()));
     baton3.post();
     baton1.post();
     baton2.post();
-    blockingWait([&scope]()->Task<> {co_await scope.joinAsync();}().scheduleOn(executor.get()));
+    folly::coro::blockingWait([&scope]()->folly::coro::Task<> {co_await scope.joinAsync();}().scheduleOn(executor.get()));
   }
 
   std::cout << "===== Done" << std::endl;
