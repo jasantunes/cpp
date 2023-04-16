@@ -85,11 +85,6 @@ target_link_libraries(06_folly_synchronization PRIVATE ${FOLLY_LIBS} log4cxx)
 
 add_executable(07_templates src/07_templates.cpp)
 
-add_executable(08_folly_optional src/08_folly_optional.cpp)
-target_compile_options(08_folly_optional PRIVATE -fcoroutines-ts)
-target_include_directories(08_folly_optional PRIVATE ${FOLLY_INCLUDES})
-target_link_libraries(08_folly_optional PRIVATE ${FOLLY_LIBS})
-
 add_executable(09_strings src/09_strings.cpp)
 target_link_libraries(09_strings PRIVATE fmt::fmt magic_enum::magic_enum)
 # https://clang.llvm.org/docs/AddressSanitizer.html#how-to-build
